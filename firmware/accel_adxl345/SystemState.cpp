@@ -11,6 +11,7 @@
 SystemState::SystemState() {
     mode = MODE_STOPPED;
     timerPeriod = defaultTimerPeriod;
+    range = defaultRange;
 }
 
 void SystemState::init() {
@@ -21,15 +22,33 @@ void SystemState::setTimerInterrupt(void (*isr)()) {
     Timer1.attachInterrupt(isr);
 }
 
-void SystemState::setTimerPeriod(unsigned long period) {
-    if ((period >= minTimerPeriod) && (period <= maxTimerPeriod)) {
-        timerPeriod = period;
+void SystemState::setTimerPeriod(unsigned long value) {
+    if ((value >= minTimerPeriod) && (value <= maxTimerPeriod)) {
+        timerPeriod = value;
         Timer1.setPeriod(timerPeriod);
     }
 }
 
 unsigned long SystemState::getTimerPeriod() {
     return timerPeriod;
+}
+
+unsigned int SystemState::getRange() {
+    return range;
+}
+
+void SystemState::setRange(unsigned int value) {
+    bool test = false;
+    // Check that value is in the set of allowed ranges
+    for (int i=0; i<numRange; i++) {
+        if (value == allowedRange[i]) {
+            test = true;
+        }
+    }
+    // Set range value
+    if (test) {
+        range = value;
+    }
 }
 
 

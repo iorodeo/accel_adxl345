@@ -39,7 +39,7 @@ void setup() {
 
     buffer.init(bufferSize);
 
-    accel.SetRange(16, true);
+    accel.SetRange(state.getRange(), true);
     accel.EnableMeasurements();
 
     state.init();
@@ -70,9 +70,10 @@ void loop() {
 void handleMessage() {
     SerialCmd cmd;
     long timerPeriod;
+    unsigned int range;
+    AccelerometerRaw raw;
 
     cmd = (SerialCmd) receiver.readInt(0);
-    //Serial << "cmd: " << cmd << endl;
 
     switch (cmd) {
 
@@ -100,6 +101,26 @@ void handleMessage() {
                 Serial << state.getTimerPeriod() << endl;
             }
             break;
+
+        case CMD_SET_RANGE:
+            if (state.mode == MODE_STOPPED) {
+                range = (unsigned int) receiver.readInt(1);
+                state.setRange(range);
+                accel.SetRange(state.getRange(),true);
+            }
+            break;
+
+        case CMD_GET_RANGE:
+            if (state.mode == MODE_STOPPED) {
+                Serial << state.getRange() << endl;
+            }
+            break;
+
+        case CMD_GET_SAMPLE:
+            if (state.mode == MODE_STOPPED) {
+                raw = accel.ReadRawAxis();
+                Serial << raw.XAxis << "," << raw.YAxis << "," << raw.ZAxis << endl;
+            }
 
         default:
             break;

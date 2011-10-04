@@ -15,11 +15,14 @@ class SystemState {
         OperatingMode  mode; 
         void init();
         void setTimerInterrupt(void (*isr)());
-        void setTimerPeriod(unsigned long timerPeriod);
+        void setTimerPeriod(unsigned long value);
         unsigned long getTimerPeriod();
+        void setRange(unsigned int value);
+        unsigned int getRange();
 
     private:
         unsigned long timerPeriod; 
+        unsigned int range;
 };
 
 #endif
