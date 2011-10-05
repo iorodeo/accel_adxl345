@@ -1,0 +1,12 @@
+accel_adxl345: A library for streaming samples from an ADXL345 accelerometer
+(attached to an Ardiuno).
+
+Installations instructions can be found in the INSTALL file.
+
+Examples demonstrating how to use the library can be found in the examples
+subdirectory of the project.
+
+Author: Will Dickson IO Rodeo Inc.
+
+accel_adxl345 may be freely distributed and modified in accordance with the
+Apache 2.0  License.

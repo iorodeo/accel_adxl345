@@ -1,0 +1,19 @@
+accel_adxl345 installation instructions
+=======================================
+
+Requirements:
+
+  * numpy (not really sure which versions will work - a reasonbly recent one should do)
+  * pyserial
+
+Installation:
+
+The package uses the Python setuptools, you can build it by calling
+
+python setup.py install
+
+which installs the package on your system.  See the "Installing Python
+Modules" manual inside your Python documentation or at
+http://docs.python.org/inst/inst.html if you want to customize the
+build process or the target location.
+

@@ -121,6 +121,19 @@ void handleMessage() {
                 raw = accel.ReadRawAxis();
                 Serial << raw.XAxis << "," << raw.YAxis << "," << raw.ZAxis << endl;
             }
+            break;
+
+        case CMD_GET_MAX_TIMER_PERIOD:
+            if (state.mode == MODE_STOPPED) {
+                Serial << maxTimerPeriod << endl; 
+            }
+            break;
+
+        case CMD_GET_MIN_TIMER_PERIOD:  
+            if (state.mode == MODE_STOPPED) {
+                Serial << minTimerPeriod << endl;
+            }
+            break;
 
         default:
             break;

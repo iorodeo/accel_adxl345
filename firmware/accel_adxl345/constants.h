@@ -37,6 +37,8 @@ enum SerialCmd {
     CMD_SET_RANGE,
     CMD_GET_RANGE,
     CMD_GET_SAMPLE,
+    CMD_GET_MAX_TIMER_PERIOD,
+    CMD_GET_MIN_TIMER_PERIOD
 };
 
 #endif
