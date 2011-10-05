@@ -1,0 +1,6 @@
+The following libraries are required to build this project.
+
+* from iorodeo_arduino_libs https://bitbucket.org/iorodeo/iorodeo_arduino_libs/src
+  FastWire, FastADXL345, SerialReceiver, ByteBuffer.
+
+* TimerOne http://www.arduino.cc/playground/Code/Timer1
