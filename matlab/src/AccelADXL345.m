@@ -194,6 +194,7 @@ classdef AccelADXL345 < handle
            data = zeros(n,3);
            done = false;
            cnt = 1;
+           
            while ~done
                out = fscanf(self.ser);
                out = strtrim(out);
@@ -201,7 +202,7 @@ classdef AccelADXL345 < handle
                for i = 1:length(out)
                   line = out{i};
                   line = str2array(line);
-                  if cnt < n
+                  if cnt < n && ~isempty(line)
                       data(cnt,:) = line;
                       cnt = cnt + 1;
                   else
