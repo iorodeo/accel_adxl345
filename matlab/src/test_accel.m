@@ -36,6 +36,12 @@ function test_accel
     n = 1000;
     fprintf('grabbing %d samples\n',n)
     [data, t] = dev.getSamples(n);
+    ax = data(:,1);
+    dax = diff(data(:,1));
+    mean(dax)
+    std(dax)
+    max(dax)
+    min(dax)
     
     dev.close();
     delete(dev);
