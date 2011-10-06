@@ -7,12 +7,12 @@ from accel_adxl345 import AccelADXL345
 
 port = '/dev/ttyUSB0'
 dev = AccelADXL345(port=port)
-dev.setRange(4)
+dev.setRange(16)
 dev.setSampleRate(500)
 
 print 'acquiring samples'
 sys.stdout.flush()
-t,data = dev.getSamples(1000,verbose=True)
+t,data = dev.getSamples(5000,verbose=True)
 
 # Compute mean and get magnitude of vector
 if 0:
