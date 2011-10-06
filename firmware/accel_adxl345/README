@@ -4,3 +4,5 @@ The following libraries are required to build this project.
   FastWire, FastADXL345, SerialReceiver, ByteBuffer.
 
 * TimerOne http://www.arduino.cc/playground/Code/Timer1
+
+* Streaming http://arduiniana.org/libraries/streaming/
