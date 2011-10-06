@@ -10,6 +10,7 @@ syntax: glob
 *.dxf
 *.komodo*
 *.egg-info
+*.asv
 .DS_Store
 build
 dist
