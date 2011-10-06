@@ -33,7 +33,7 @@ function test_accel
     accel = dev.peek();
     fprintf('dev.peek = [%f, %f, %f]\n\n', accel(1), accel(2), accel(3));
     
-    n = 1000;
+    n = 5000;
     fprintf('grabbing %d samples\n',n)
     [data, t] = dev.getSamples(n);
     ax = data(:,1);
