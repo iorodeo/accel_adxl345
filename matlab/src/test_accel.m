@@ -23,7 +23,6 @@ function test_accel
     fprintf('sample rate: %f (Hz)\n', freq);
     fprintf('sampleDt: %d\n\n', dev.sampleDt);
     
-   
     newRange = 16;
     fprintf('setting range to %d\n', newRange);
     dev.setRange(newRange);
@@ -38,24 +37,20 @@ function test_accel
     [data, t] = dev.getSamples(n);
     ax = data(:,1);
     dax = diff(data(:,1));
-    mean(dax)
-    std(dax)
-    max(dax)
-    min(dax)
     
     dev.close();
     delete(dev);
     
     subplot(3,1,1)
-    plot(t,data(:,1),'.');
+    plot(t,data(:,1));
     ylabel('ax')
     
     subplot(3,1,2)
-    plot(t,data(:,2),'.');
+    plot(t,data(:,2));
     ylabel('ay');
     
     subplot(3,1,3)
-    plot(t,data(:,3),'.');
+    plot(t,data(:,3));
     ylabel('az')
     xlabel('t (sec)')
 
