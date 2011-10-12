@@ -45,7 +45,7 @@ class AccelADXL345(serial.Serial):
         _kwarg = {
                 'port'     : '/dev/ttyUSB0',
                 'timeout'  : 0.3,
-                'baudrate' : 1000000,
+                'baudrate' : 115200,
                 }
 
         _kwarg.update(kwarg)

@@ -11,7 +11,7 @@
 
 
 // Constants
-const unsigned long baudRate = 1000000;
+const unsigned long baudRate = 115200;
 const unsigned int maxSendCnt = 15;
 const unsigned int bufferSize = 50;
 
