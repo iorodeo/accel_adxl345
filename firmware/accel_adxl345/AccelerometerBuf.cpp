@@ -20,9 +20,11 @@ void AccelerometerBuf::init(unsigned int _bufSize) {
 
 void AccelerometerBuf::putVal(AccelerometerRaw raw) {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        xBuf.putInt(raw.XAxis);
-        yBuf.putInt(raw.YAxis);
-        zBuf.putInt(raw.ZAxis);
+        if (xBuf.getSize() < xBuf.getCapacity()) {
+            xBuf.putInt(raw.XAxis);
+            yBuf.putInt(raw.YAxis);
+            zBuf.putInt(raw.ZAxis);
+        }
     }
 }
 

@@ -168,6 +168,9 @@ void timerCallback() {
         sei();
         raw = accel.ReadRawAxis();
         buffer.putVal(raw);
+        //Serial << raw.XAxis << endl;
+        //Serial << raw.YAxis << endl;
+        //Serial << raw.ZAxis << endl;
     }
 }
 
