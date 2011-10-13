@@ -8,9 +8,9 @@ dev = AccelADXL345(port=port)
 dev.setRange(2)
 
 if 0:
-    print dev.peek()
+    print dev.peekValue()
 
 if 1:
     for i in range(0,100):
-        print dev.peek()
+        print dev.peekValue()
 

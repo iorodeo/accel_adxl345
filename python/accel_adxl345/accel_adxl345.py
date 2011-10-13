@@ -219,7 +219,7 @@ class AccelADXL345(serial.Serial):
         """
         return self.allowedAccelRange
 
-    def peek(self):
+    def peekValue(self):
         """
         Grabs a sinlge sample (ax,ay,az) from the accelerometer.
         """
@@ -269,7 +269,8 @@ class AccelADXL345(serial.Serial):
             vals = vals.split(',')
             try:
                 vals = [float(x) for x in vals]
-                data.append(vals)
+                if len(vals) == 3:
+                    data.append(vals)
             except:
                 if verbose:
                     print 'fail'

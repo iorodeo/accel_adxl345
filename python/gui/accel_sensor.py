@@ -17,7 +17,7 @@ from PyQt4 import QtGui
 from accel_sensor_ui import Ui_AccelSensorMainWindow 
 from accel_adxl345 import AccelADXL345
 
-TIMER_INTERVAL_MS = 0.01
+TIMER_INTERVAL_MS = 0.001
 MIN_INWAITING_SIZE = 15
 
 # Default parameters
@@ -199,9 +199,8 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
         """
         if self.connected == False:
             try:
-                # Connect to device, set range and sample rate
                 self.dev = AccelADXL345(port=self.port)
-                self.connected = True
+                # Connect to device, set range and sample rate
                 self.dev.setRange(self.getRange())
                 self.dev.setSampleRate(self.sampleRate)
 
@@ -218,6 +217,7 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
                         )
 
                 self.statusLabel.setText('Status: connected')
+                self.connected = True
             except Exception, e:
                 QtGui.QMessageBox.critical(self,'Error', '%s'%(e,))
                 self.statusLabel.setText('Status: not connected')
@@ -295,6 +295,9 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
         self.dev.stopStreaming()
         self.dev.emptyBuffer()
         self.started = False
+        self.statusLabel.setText('Status: connected')
+        self.setStartStopText()
+        self.enableDisableWidgets()
 
         # Reduce size of data if necessary data and create time array 
         N = len(self.data)
@@ -322,10 +325,6 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
             self.axes[i].set_ylim(minData,maxData)
 
         self.mpl.canvas.fig.canvas.draw()
-        self.statusLabel.setText('Status: connected')
-        self.setStartStopText()
-        self.enableDisableWidgets()
-
         self.dev.emptyBuffer()
 
 
