@@ -12,7 +12,7 @@ dev.setSampleRate(500)
 
 print 'acquiring samples'
 sys.stdout.flush()
-t,data = dev.getSamples(5000,verbose=True)
+t,data = dev.getSamples(15000,verbose=True)
 
 # Compute mean and get magnitude of vector
 if 0:

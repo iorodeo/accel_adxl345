@@ -153,6 +153,7 @@ class AccelADXL345(serial.Serial):
         """
         return 1.0/self.sampleDt
 
+
     def setSampleRate(self,freq):
         """
         Sets the sample rate in Hz
@@ -177,6 +178,20 @@ class AccelADXL345(serial.Serial):
         self.sendCmd(cmd)
         value = self.readInt()
         return value
+
+    def getMaxSampleRate(self):
+        """
+        Returns the maximum allowed sample rate in Hz
+        """
+        minSampleDtSec = self.minSampleDt*(1.0e-6)
+        return 1.0/minSampleDtSec
+
+    def getMinSampleRate(self):
+        """
+        Returns the minum allowed samples rate in Hz
+        """
+        maxSampleDtSec = self.maxSampleDt*(1.0e-6)
+        return 1.0/maxSampleDtSec
 
     def getRange(self):
         """
@@ -228,17 +243,8 @@ class AccelADXL345(serial.Serial):
         while len(data) < N:
             if verbose:
                 print len(data)
-            line = self.readline()
-            line = line.strip()
-            line = line.split(';')
-            for vals in line:
-                vals = vals.split(',')
-                try:
-                    vals = [float(x) for x in vals]
-                    data.append(vals)
-                except:
-                    if verbose:
-                        print 'fail'
+            newData = self.readValues(verbose=verbose)
+            data.extend(newData)
 
         #  Stop streaming and empty buffer
         self.stopStreaming()
@@ -253,5 +259,21 @@ class AccelADXL345(serial.Serial):
         t = dtSec*numpy.arange(data.shape[0])
 
         return t, data
+
+    def readValues(self,verbose=False):
+        data = []
+        line = self.readline()
+        line = line.strip()
+        line = line.split(';')
+        for vals in line:
+            vals = vals.split(',')
+            try:
+                vals = [float(x) for x in vals]
+                data.append(vals)
+            except:
+                if verbose:
+                    print 'fail'
+        return data
+
 
 
