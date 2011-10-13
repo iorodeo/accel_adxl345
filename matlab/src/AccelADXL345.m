@@ -30,7 +30,7 @@ classdef AccelADXL345 < handle
         % Serial communication parameters
         ser = [];
         port = [];
-        baudrate = 115200;
+        baudrate = 1000000;
         databits = 8;
         stopbits = 1;
         timeout = 1.0;

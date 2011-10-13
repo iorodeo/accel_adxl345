@@ -17,10 +17,19 @@ from PyQt4 import QtGui
 from accel_sensor_ui import Ui_AccelSensorMainWindow 
 from accel_adxl345 import AccelADXL345
 
-TIMER_INTERVAL_MS = 0.001
+TIMER_INTERVAL_MS = 0.01
+MIN_INWAITING_SIZE = 15
+
+# Default parameters
 DEFAULT_DURATION = 1.0
 DEFAULT_SAMPLE_RATE = 500.0
 DEFAULT_SAVE_FILE = 'sensor_data.txt'
+
+# Validator parameters
+DURATION_MIN = 0.01 
+DURATION_MAX = 60 
+DURATION_DECIMALS = 2
+SAMPLE_RATE_DECIMALS = 0
 
 class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
 
@@ -81,6 +90,20 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
             self.port = 'com1'
         self.serialPortLineEdit.setText(self.port)
 
+        # Setup duration and sample rate validators
+        self.durationValidator = QtGui.QDoubleValidator(self)
+        self.durationValidator.setRange(
+                DURATION_MIN,
+                DURATION_MAX,
+                DURATION_DECIMALS
+                )
+        self.durationValidator.fixup = self.durationLineEditFixup
+        self.durationLineEdit.setValidator(self.durationValidator)
+
+        self.sampleRateValidator = QtGui.QDoubleValidator(self)
+        self.sampleRateValidator.fixup = self.sampleRateFixup
+        self.sampleRateLineEdit.setValidator(self.sampleRateValidator)
+
         # Set duration and sample rate to default
         self.durationLineEdit.setText('%1.2f'%(self.duration,))
         self.sampleRateLineEdit.setText('%1.0f'%(self.sampleRate,))
@@ -133,12 +156,11 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
         Changes recording duration based on lineedit value
         """
         durationStr = self.durationLineEdit.text()
-        try:
-            duration = float(durationStr)
-            self.duration = duration
-        except ValueError, e: 
-            pass
-        self.durationLineEdit.setText('%1.2f'%(self.duration,))
+        self.duration = float(durationStr)
+
+    def durationLineEditFixup(self,value):
+        durationStr = '%1.2f'%(self.duration,)
+        self.durationLineEdit.setText(durationStr)
 
     def sampleRateChanged_Callback(self):
         """
@@ -146,18 +168,15 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
         """
         # Get sample rate string and convert to float
         sampleRateStr = self.sampleRateLineEdit.text()
-        try:
-            sampleRate = float(sampleRateStr)
-        except ValueError, e:
-            sampleRate = self.sampleRate
-        # Check that it is in the allowed range
-        if sampleRate >= self.minSampleRate and sampleRate <= self.maxSampleRate:
-            self.sampleRate = sampleRate
-        self.sampleRateLineEdit.setText('%1.0f'%(self.sampleRate,))
+        self.sampleRate = float(sampleRateStr)
 
         # Set sample rate and get actual value used by device
         self.dev.setSampleRate(self.sampleRate)
         self.actualSampleDt = self.dev.getSampleDt()*1.0e-6
+
+    def sampleRateFixup(self,valStr):
+        sampleRateStr = '%1.0f'%(self.sampleRate,)
+        self.sampleRateLineEdit.setText(sampleRateStr)
 
     def connectCheckBox_PressedCallback(self):
         """
@@ -180,13 +199,24 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
         """
         if self.connected == False:
             try:
+                # Connect to device, set range and sample rate
                 self.dev = AccelADXL345(port=self.port)
                 self.connected = True
                 self.dev.setRange(self.getRange())
                 self.dev.setSampleRate(self.sampleRate)
+
+                # Get actual sample dt, max and min sample rates 
                 self.actualSampleDt = self.dev.getSampleDt()*1.0e-6
                 self.maxSampleRate = self.dev.getMaxSampleRate()
                 self.minSampleRate = self.dev.getMinSampleRate()
+
+                # Use max and min sample rate to set top and bottom of validator
+                self.sampleRateValidator.setRange(
+                        self.minSampleRate,
+                        self.maxSampleRate,
+                        SAMPLE_RATE_DECIMALS
+                        )
+
                 self.statusLabel.setText('Status: connected')
             except Exception, e:
                 QtGui.QMessageBox.critical(self,'Error', '%s'%(e,))
@@ -230,11 +260,13 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
         samples have been acquired then plots the data.
         """
         # Read the available samples from the device
-        newData = self.dev.readValues()
-        self.data.extend(newData)
-        percent = min([100,100*len(self.data)/float(self.numSamples)])
-        percentStr = '%1.0f'%(percent,) + '%'
-        self.statusLabel.setText('Status: acquiring samples %s'%(percentStr,))
+        while self.dev.inWaiting() > MIN_INWAITING_SIZE and len(self.data) < self.numSamples:
+            newData = self.dev.readValues()
+            self.data.extend(newData)
+            percent = min([100,100*len(self.data)/float(self.numSamples)])
+            percentStr = '%1.0f'%(percent,) + '%'
+            self.statusLabel.setText('Status: acquiring samples %s'%(percentStr,))
+            self.statusLabel.repaint()
         
         # Check if enough samples have been acquired
         if len(self.data) >= self.numSamples:
@@ -256,8 +288,10 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
         """
         Stops data streaming from device
         """
-        # Stop streaming, empty buffer, etc
         self.timer.stop()
+        # Stop streaming, empty buffer, etc
+        self.dev.stopStreaming()
+        self.dev.emptyBuffer()
         self.dev.stopStreaming()
         self.dev.emptyBuffer()
         self.started = False
@@ -291,6 +325,8 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
         self.statusLabel.setText('Status: connected')
         self.setStartStopText()
         self.enableDisableWidgets()
+
+        self.dev.emptyBuffer()
 
 
     def setStartStopText(self):
