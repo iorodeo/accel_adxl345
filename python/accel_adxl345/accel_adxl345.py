@@ -106,6 +106,7 @@ class AccelADXL345(serial.Serial):
         """
         while self.inWaiting() > 0:
             line = self.readline()
+        self.flushInput()
 
     def checkAccelRange(self,value):
         """

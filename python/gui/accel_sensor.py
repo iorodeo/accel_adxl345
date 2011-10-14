@@ -17,12 +17,12 @@ from PyQt4 import QtGui
 from accel_sensor_ui import Ui_AccelSensorMainWindow 
 from accel_adxl345 import AccelADXL345
 
-TIMER_INTERVAL_MS = 0.001
+TIMER_INTERVAL_MS = 0.01
 MIN_INWAITING_SIZE = 15
 
 # Default parameters
 DEFAULT_DURATION = 1.0
-DEFAULT_SAMPLE_RATE = 500.0
+DEFAULT_SAMPLE_RATE = 200.0
 DEFAULT_SAVE_FILE = 'sensor_data.txt'
 
 # Validator parameters
@@ -292,8 +292,8 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
         # Stop streaming, empty buffer, etc
         self.dev.stopStreaming()
         self.dev.emptyBuffer()
-        self.dev.stopStreaming()
-        self.dev.emptyBuffer()
+        #self.dev.stopStreaming()
+        #self.dev.emptyBuffer()
         self.started = False
         self.statusLabel.setText('Status: connected')
         self.setStartStopText()
@@ -325,7 +325,7 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
             self.axes[i].set_ylim(minData,maxData)
 
         self.mpl.canvas.fig.canvas.draw()
-        self.dev.emptyBuffer()
+        #self.dev.emptyBuffer()
 
 
     def setStartStopText(self):

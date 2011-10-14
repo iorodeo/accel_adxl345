@@ -13,11 +13,11 @@
 // Constants
 const unsigned long baudRate = 115200;
 //const unsigned long baudRate = 1000000;
-const unsigned int maxSendCnt = 6;
+const unsigned int maxLineCnt = 6;
 const unsigned int bufferSize = 100;
 
-const unsigned long defaultTimerPeriod = 2000;
-const unsigned long minTimerPeriod = 2000;
+const unsigned long defaultTimerPeriod = 5000;
+const unsigned long minTimerPeriod = 5000;
 const unsigned long maxTimerPeriod = 100000;
 
 const unsigned int numRange = 4;

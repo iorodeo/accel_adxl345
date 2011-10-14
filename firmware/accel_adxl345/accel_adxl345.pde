@@ -81,6 +81,7 @@ void handleMessage() {
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
                 state.mode = MODE_STOPPED;
             }
+            buffer.clear();
             break;
 
         case CMD_START_STREAM:
@@ -143,20 +144,25 @@ void handleMessage() {
 
 // Sends accelerometer data to the host PC
 void sendAccelData() {
-    static int cnt = 0;
+    int sendCnt = 0;
+    static int lineCnt = 0;
     static AccelerometerRaw raw;
+    char valueStr[22];
 
-    while (buffer.getSize() > 0) {
+    while ((buffer.getSize() > 0) && (sendCnt < 20)) {
         raw = buffer.getVal();
-        Serial << raw.XAxis << " " << raw.YAxis << " " << raw.ZAxis;
-        cnt++;
-        if (cnt < maxSendCnt) {
-            Serial << ":";
+        if (lineCnt < maxLineCnt) {
+            sprintf(valueStr,"%06d %06d %06d:",raw.XAxis, raw.YAxis, raw.ZAxis);
+            Serial << valueStr;
+            lineCnt++;
         }
         else {
-            Serial << endl;
-            cnt = 0;
+            sprintf(valueStr,"%06d %06d %06d",raw.XAxis, raw.YAxis, raw.ZAxis);
+            Serial << valueStr << " "  << endl;
+            //Serial << valueStr << " " << buffer.getSize() << endl;
+            lineCnt = 0;
         }
+        sendCnt++;
     }
 }
 
