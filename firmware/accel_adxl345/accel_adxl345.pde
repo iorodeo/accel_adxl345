@@ -148,10 +148,10 @@ void sendAccelData() {
 
     while (buffer.getSize() > 0) {
         raw = buffer.getVal();
-        Serial << raw.XAxis << "," << raw.YAxis << "," << raw.ZAxis;
+        Serial << raw.XAxis << " " << raw.YAxis << " " << raw.ZAxis;
         cnt++;
         if (cnt < maxSendCnt) {
-            Serial << ";";
+            Serial << ":";
         }
         else {
             Serial << endl;

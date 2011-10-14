@@ -194,11 +194,10 @@ classdef AccelADXL345 < handle
            data = zeros(n,3);
            done = false;
            cnt = 1;
-           
            while ~done
                out = fscanf(self.ser);
                out = strtrim(out);
-               out = strsplit(out,';');
+               out = strsplit(out,':');
                for i = 1:length(out)
                   line = out{i};
                   line = str2array(line);
@@ -280,7 +279,7 @@ function array = str2array(line)
 % Converts an input string of numbers separated by commas into to an array.
 
 line = strtrim(line);
-line = strsplit(line,',');
+line = strsplit(line,' ');
 array = zeros(size(line));
 
 % Convert elements to doubles

@@ -81,8 +81,8 @@ class AccelADXL345(serial.Serial):
         Read a single float of list of floats separated by commas
         """
         value = self.readValue()
-        if ',' in value:
-            value = value.split(',')
+        if ' ' in value:
+            value = value.split(' ')
             value = [float(x) for x in value]
         else:
             value = float(value)
@@ -93,8 +93,8 @@ class AccelADXL345(serial.Serial):
         Read a single integer or list of integers separated by commas.
         """
         value = self.readValue()
-        if ',' in value:
-            value = value.split(',')
+        if ' ' in value:
+            value = value.split(' ')
             value = [int(x) for x in value]
         else:
             value = int(value)
@@ -265,9 +265,9 @@ class AccelADXL345(serial.Serial):
         if self.inWaiting() > 0:
             line = self.readline()
             line = line.strip()
-            line = line.split(';')
+            line = line.split(':')
             for vals in line:
-                vals = vals.split(',')
+                vals = vals.split(' ')
                 try:
                     vals = [float(x) for x in vals]
                     if len(vals) == 3:
