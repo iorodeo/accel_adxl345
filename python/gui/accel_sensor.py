@@ -22,7 +22,7 @@ MIN_INWAITING_SIZE = 15
 
 # Default parameters
 DEFAULT_DURATION = 1.0
-DEFAULT_SAMPLE_RATE = 200.0
+DEFAULT_SAMPLE_RATE = 500.0
 DEFAULT_SAVE_FILE = 'sensor_data.txt'
 
 # Validator parameters
