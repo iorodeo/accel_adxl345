@@ -17,7 +17,7 @@ from PyQt4 import QtGui
 from accel_sensor_ui import Ui_AccelSensorMainWindow 
 from accel_adxl345 import AccelADXL345
 
-TIMER_INTERVAL_MS = 0.01
+TIMER_INTERVAL_MS = 0.001
 MIN_INWAITING_SIZE = 15
 
 # Default parameters
@@ -261,7 +261,12 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
         """
         # Read the available samples from the device
         while self.dev.inWaiting() > MIN_INWAITING_SIZE and len(self.data) < self.numSamples:
-            newData = self.dev.readValues()
+            try:
+                newData = self.dev.readValues()
+            except IOError, e:
+                self.stopDataStreaming(plot=False)
+                break
+                
             self.data.extend(newData)
             percent = min([100,100*len(self.data)/float(self.numSamples)])
             percentStr = '%1.0f'%(percent,) + '%'
@@ -284,7 +289,7 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
         self.dev.startStreaming()
         self.timer.start()
 
-    def stopDataStreaming(self):
+    def stopDataStreaming(self,plot=True):
         """
         Stops data streaming from device
         """
@@ -292,40 +297,41 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
         # Stop streaming, empty buffer, etc
         self.dev.stopStreaming()
         self.dev.emptyBuffer()
-        #self.dev.stopStreaming()
-        #self.dev.emptyBuffer()
         self.started = False
         self.statusLabel.setText('Status: connected')
         self.setStartStopText()
         self.enableDisableWidgets()
 
-        # Reduce size of data if necessary data and create time array 
-        N = len(self.data)
-        if N > self.numSamples:
-            N = self.numSamples
-            self.data = self.data[0:N]
-        self.data = self.dev.accelScale*pylab.array(self.data)
-        self.t = self.actualSampleDt*pylab.arange(0,N)
-        self.t = self.t.reshape((self.t.shape[0],1))
+        if plot and len(self.data) > 0:
+            # Reduce size of data if necessary data and create time array 
+            N = len(self.data)
+            if N > self.numSamples:
+                N = self.numSamples
+                self.data = self.data[0:N]
+            self.data = self.dev.accelScale*pylab.array(self.data)
+            self.t = self.actualSampleDt*pylab.arange(0,N)
+            self.t = self.t.reshape((self.t.shape[0],1))
 
-        # Plot data
-        for i in range(0,3):
-            # Set data and make visible 
-            self.plots[i].set_visible(True)
-            self.plots[i].set_data(self.t,self.data[:,i])
+            # Plot data
+            for i in range(0,3):
+                # Set data and make visible 
+                self.plots[i].set_visible(True)
+                self.plots[i].set_data(self.t,self.data[:,i])
 
-            # Set time range 
-            minT = self.t.min()
-            maxT = self.t.max()
-            self.axes[i].set_xlim(minT,maxT)
+                # Set time range 
+                minT = self.t.min()
+                maxT = self.t.max()
+                self.axes[i].set_xlim(minT,maxT)
 
-            # Set data range
-            minData = self.data[:,i].min()
-            maxData = self.data[:,i].max()
-            self.axes[i].set_ylim(minData,maxData)
+                # Set data range
+                minData = self.data[:,i].min()
+                maxData = self.data[:,i].max()
+                self.axes[i].set_ylim(minData,maxData)
 
-        self.mpl.canvas.fig.canvas.draw()
-        #self.dev.emptyBuffer()
+            self.mpl.canvas.fig.canvas.draw()
+        else:
+            pass
+            
 
 
     def setStartStopText(self):

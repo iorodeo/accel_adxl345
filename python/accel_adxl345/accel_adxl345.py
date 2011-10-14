@@ -8,6 +8,10 @@ import time
 import serial
 import sys
 import numpy
+import struct
+
+BUF_EMPTY_NUM = 5
+BUF_EMPTY_DT = 0.05
 
 class AccelADXL345(serial.Serial):
 
@@ -45,7 +49,7 @@ class AccelADXL345(serial.Serial):
         _kwarg = {
                 'port'     : '/dev/ttyUSB0',
                 'timeout'  : 0.1,
-                'baudrate' : 115200,
+                'baudrate' : 38400,
                 }
 
         _kwarg.update(kwarg)
@@ -104,9 +108,10 @@ class AccelADXL345(serial.Serial):
         """
         Empty the serial input buffer.
         """
-        while self.inWaiting() > 0:
-            line = self.readline()
-        self.flushInput()
+        for i in range(0,BUF_EMPTY_NUM):
+            #print 'empty %d'%(i,), self.inWaiting()
+            self.flushInput()
+            time.sleep(BUF_EMPTY_DT)
 
     def checkAccelRange(self,value):
         """
@@ -244,7 +249,7 @@ class AccelADXL345(serial.Serial):
         while len(data) < N:
             if verbose:
                 print len(data)
-            newData = self.readValues(verbose=verbose)
+            newData = self.readValues()
             data.extend(newData)
 
         #  Stop streaming and empty buffer
@@ -261,22 +266,36 @@ class AccelADXL345(serial.Serial):
 
         return t, data
 
-    def readValues(self,verbose=False):
+    #def readValues(self,verbose=False):
+    #    data = []
+    #    if self.inWaiting() > 0:
+    #        line = self.readline()
+    #        line = line.strip()
+    #        line = line.split(':')
+    #        for vals in line:
+    #            vals = vals.split(' ')
+    #            try:
+    #                vals = [float(x) for x in vals]
+    #                if len(vals) == 3:
+    #                    data.append(vals)
+    #            except:
+    #                if verbose:
+    #                    print 'fail'
+    #    return data
+
+    def readValues(self):
         data = []
-        if self.inWaiting() > 0:
-            line = self.readline()
-            line = line.strip()
-            line = line.split(':')
-            for vals in line:
-                vals = vals.split(' ')
-                try:
-                    vals = [float(x) for x in vals]
-                    if len(vals) == 3:
-                        data.append(vals)
-                except:
-                    if verbose:
-                        print 'fail'
+        while self.inWaiting() >= 7:
+            byteVals = self.read(7)
+            ax = struct.unpack('<h',byteVals[0:2])[0]
+            ay = struct.unpack('<h',byteVals[2:4])[0]
+            az = struct.unpack('<h',byteVals[4:6])[0]
+            chk = ord(byteVals[6]) 
+            if not chk == 0:
+                raise IOError, 'streaming data is not in sync.'
+            data.append([ax,ay,az])
         return data
+
 
 
 

@@ -144,24 +144,15 @@ void handleMessage() {
 
 // Sends accelerometer data to the host PC
 void sendAccelData() {
-    int sendCnt = 0;
-    static int lineCnt = 0;
+    unsigned int sendCnt=0;
     static AccelerometerRaw raw;
-    char valueStr[22];
 
-    while ((buffer.getSize() > 0) && (sendCnt < 20)) {
+    while ((buffer.getSize() > 0) && (sendCnt < maxSendCnt)) {
         raw = buffer.getVal();
-        if (lineCnt < maxLineCnt) {
-            sprintf(valueStr,"%06d %06d %06d:",raw.XAxis, raw.YAxis, raw.ZAxis);
-            Serial << valueStr;
-            lineCnt++;
-        }
-        else {
-            sprintf(valueStr,"%06d %06d %06d",raw.XAxis, raw.YAxis, raw.ZAxis);
-            Serial << valueStr << " "  << endl;
-            //Serial << valueStr << " " << buffer.getSize() << endl;
-            lineCnt = 0;
-        }
+        Serial << _BYTE(lowByte(raw.XAxis)) << _BYTE(highByte(raw.XAxis));
+        Serial << _BYTE(lowByte(raw.YAxis)) << _BYTE(highByte(raw.YAxis));
+        Serial << _BYTE(lowByte(raw.ZAxis)) << _BYTE(highByte(raw.ZAxis));
+        Serial << _BYTE(0); // bit to check that data is in sync.
         sendCnt++;
     }
 }

@@ -5,8 +5,8 @@ import sys
 import pylab
 from accel_adxl345 import AccelADXL345
 
-#port = '/dev/ttyUSB0'
-port = 'com57'
+port = '/dev/ttyUSB2'
+#port = 'com57'
 dev = AccelADXL345(port=port)
 dev.setRange(16)
 dev.setSampleRate(500)
