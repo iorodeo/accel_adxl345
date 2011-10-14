@@ -262,18 +262,19 @@ class AccelADXL345(serial.Serial):
 
     def readValues(self,verbose=False):
         data = []
-        line = self.readline()
-        line = line.strip()
-        line = line.split(';')
-        for vals in line:
-            vals = vals.split(',')
-            try:
-                vals = [float(x) for x in vals]
-                if len(vals) == 3:
-                    data.append(vals)
-            except:
-                if verbose:
-                    print 'fail'
+        if self.inWaiting() > 0:
+            line = self.readline()
+            line = line.strip()
+            line = line.split(';')
+            for vals in line:
+                vals = vals.split(',')
+                try:
+                    vals = [float(x) for x in vals]
+                    if len(vals) == 3:
+                        data.append(vals)
+                except:
+                    if verbose:
+                        print 'fail'
         return data
 
 
