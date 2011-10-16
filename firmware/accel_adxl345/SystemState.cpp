@@ -11,7 +11,8 @@
 SystemState::SystemState() {
     mode = MODE_STOPPED;
     timerPeriod = defaultTimerPeriod;
-    range = defaultRange;
+    setRange(defaultRange);
+    badSampleCount = 0;
 }
 
 void SystemState::init() {
@@ -45,7 +46,7 @@ void SystemState::setRange(unsigned int value) {
             test = true;
         }
     }
-    // Set range value
+    // Set range and maxValue
     if (test) {
         range = value;
     }

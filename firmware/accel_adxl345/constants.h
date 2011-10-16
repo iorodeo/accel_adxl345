@@ -23,6 +23,8 @@ const unsigned int numRange = 4;
 const unsigned int allowedRange[] = {2,4,8,16};
 const unsigned int defaultRange = 16;
 
+const int maxSampleDiff = 200;
+
 // Enumss
 enum OperatingMode {
     MODE_STOPPED, 
@@ -38,7 +40,8 @@ enum SerialCmd {
     CMD_GET_RANGE,
     CMD_GET_SAMPLE,
     CMD_GET_MAX_TIMER_PERIOD,
-    CMD_GET_MIN_TIMER_PERIOD
+    CMD_GET_MIN_TIMER_PERIOD,
+    CMD_GET_BAD_SAMPLE_COUNT
 };
 
 #endif

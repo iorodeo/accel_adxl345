@@ -28,6 +28,7 @@ class AccelADXL345(serial.Serial):
                 'get_sample'           : 6,
                 'get_max_timer_period' : 7,
                 'get_min_timer_period' : 8,
+                'get_bad_sample_count' : 9,
                 }
 
         # Allowed accelerations ranges and scale factors
@@ -113,6 +114,7 @@ class AccelADXL345(serial.Serial):
             self.flushInput()
             time.sleep(BUF_EMPTY_DT)
 
+
     def checkAccelRange(self,value):
         """
         Check if the value is within the allowed range set.
@@ -141,6 +143,15 @@ class AccelADXL345(serial.Serial):
         self.sendCmd(cmd)
         dt = self.readFloat()
         return dt 
+
+    def getBadSampleCount(self):
+        """
+        Returns the number of bad/corrupted samples.
+        """
+        cmd = '[{0}]\n'.format(self.cmd_id['get_bad_sample_count'])
+        self.sendCmd(cmd)
+        val = self.readInt()
+        return val
 
     def setSampleDt(self,dt):
         """

@@ -8,6 +8,8 @@
  */ 
 #include <FastWire.h>
 #include <FastADXL345.h>
+//#include <Wire.h>
+//#include <ADXL345.h>
 #include <Streaming.h>
 #include <util/atomic.h>
 #include <TimerOne.h>
@@ -27,6 +29,7 @@ ADXL345 accel;
 AccelerometerBuf buffer;             
 SystemState state; 
 SerialReceiver receiver;
+bool isFirst = true;
 
 // Initialize serial port, I2C communications, setup accelerometer, acceleromter 
 //  buffer and timer
@@ -35,6 +38,9 @@ void setup() {
     Serial.begin(baudRate);
 
     Wire.begin();
+    // Disable internal pullups
+    digitalWrite(A4,LOW);
+    digitalWrite(A5,LOW);
     accel = ADXL345();
 
     buffer.init(bufferSize);
@@ -81,12 +87,14 @@ void handleMessage() {
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
                 state.mode = MODE_STOPPED;
             }
+            isFirst = true;
             buffer.clear();
             break;
 
         case CMD_START_STREAM:
             ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
                 state.mode = MODE_STREAMING;
+                isFirst = true;
             }
             break;
 
@@ -120,7 +128,8 @@ void handleMessage() {
         case CMD_GET_SAMPLE:
             if (state.mode == MODE_STOPPED) {
                 raw = accel.ReadRawAxis();
-                Serial << raw.XAxis << "," << raw.YAxis << "," << raw.ZAxis << endl;
+                Serial << raw.XAxis << " " << raw.YAxis << " " << raw.ZAxis << endl;
+                //Serial << 11 << " " << 22 << " " << 33 << endl;
             }
             break;
 
@@ -136,6 +145,12 @@ void handleMessage() {
             }
             break;
 
+        case CMD_GET_BAD_SAMPLE_COUNT:
+            if (state.mode == MODE_STOPPED) {
+                Serial << state.badSampleCount << endl;
+            }
+            break;
+
         default:
             break;
     }
@@ -145,7 +160,9 @@ void handleMessage() {
 // Sends accelerometer data to the host PC
 void sendAccelData() {
     unsigned int sendCnt=0;
+    int maxValue;
     static AccelerometerRaw raw;
+    static AccelerometerRaw rawlast;
 
     while ((buffer.getSize() > 0) && (sendCnt < maxSendCnt)) {
         raw = buffer.getVal();
@@ -154,21 +171,54 @@ void sendAccelData() {
         Serial << _BYTE(lowByte(raw.ZAxis)) << _BYTE(highByte(raw.ZAxis));
         Serial << _BYTE(0); // bit to check that data is in sync.
         sendCnt++;
+        isFirst = false;
     }
 }
 
 // Interrupt serive routine for timer1 overflow. Reads data from the accelerometer
 // and puts it into the accelerometer buffer.
 void timerCallback() {
-    static AccelerometerRaw raw;
+    bool test = true;
+    AccelerometerRaw raw0;
+    AccelerometerRaw raw1;
+    AccelerometerRaw rawMedian;
+    unsigned long t0;
+    unsigned long t1;
+    unsigned long t2;
+
     if ((accel.IsConnected) && (state.mode == MODE_STREAMING)) { 
         sei();
-        raw = accel.ReadRawAxis();
-        buffer.putVal(raw);
-        //Serial << raw.XAxis << endl;
-        //Serial << raw.YAxis << endl;
-        //Serial << raw.ZAxis << endl;
+        // Take two measurements ... and compare them
+        raw0 = accel.ReadRawAxis();
+        raw1 = accel.ReadRawAxis();
+        if (abs(raw0.XAxis - raw1.XAxis) > maxSampleDiff) {
+            test=false;
+        }
+        if (abs(raw0.YAxis - raw1.YAxis) > maxSampleDiff) {
+            test=false;
+        }
+        if (abs(raw0.ZAxis - raw1.ZAxis) > maxSampleDiff) {
+            test=false;
+        }
+        if (test) {
+            buffer.putVal(raw0);
+        }
+        else {
+            state.badSampleCount++;
+        }
+        //Serial << raw0.XAxis << " " << raw1.XAxis << endl;
+        //Serial << raw0.YAxis << " " << raw1.YAxis << endl;
+        //Serial << raw0.ZAxis << " " << raw1.ZAxis << endl;
+        //Serial << raw0.XAxis - raw1.XAxis << endl;
+        //Serial << raw0.YAxis - raw1.YAxis << endl;
+        //Serial << raw0.ZAxis - raw1.ZAxis << endl;
+        //Serial << endl;
     }
+}
+
+int medianOfThree(int val0, int val1, int val2) {
+    int vals[3];
+
 }
 
 

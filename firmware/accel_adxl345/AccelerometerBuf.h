@@ -6,6 +6,7 @@
 #include <WProgram.h>
 #include <ByteBuffer.h>
 #include <FastADXL345.h>
+//#include <ADXL345.h>
 
 class AccelerometerBuf {
 

@@ -19,7 +19,7 @@ class SystemState {
         unsigned long getTimerPeriod();
         void setRange(unsigned int value);
         unsigned int getRange();
-
+        unsigned int badSampleCount;
     private:
         unsigned long timerPeriod; 
         unsigned int range;
