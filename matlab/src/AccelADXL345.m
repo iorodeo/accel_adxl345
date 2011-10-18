@@ -23,14 +23,13 @@ classdef AccelADXL345 < handle
         
         % Scale factor for converting integers values to accelerations
         accelScale = 0.0384431560448;
-
     end
     
     properties
         % Serial communication parameters
         ser = [];
         port = [];
-        baudrate = 115200;
+        baudrate = 38400;
         databits = 8;
         stopbits = 1;
         timeout = 1.0;
@@ -195,18 +194,16 @@ classdef AccelADXL345 < handle
            done = false;
            cnt = 1;
            while ~done
-               out = fscanf(self.ser);
-               out = strtrim(out);
-               out = strsplit(out,':');
-               for i = 1:length(out)
-                  line = out{i};
-                  line = str2array(line);
-                  if cnt < n && ~isempty(line)
-                      data(cnt,:) = line;
-                      cnt = cnt + 1;
-                  else
-                      done = true;
-                  end
+               outData = fread(self.ser,3, 'int16');
+               outSync = fread(self.ser,1, 'uint8');
+               % Check that last byte is zero - if not we are out of sync
+               if ~(outSync == 0) 
+                   error('Error reading data - stream out of sync');
+               end
+               data(cnt,:) = [outData(1),outData(2),outData(3)];
+               cnt = cnt + 1;
+               if cnt >= n
+                   done = true;
                end
            end
            
