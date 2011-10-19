@@ -329,7 +329,7 @@ class Sensor_MainWindow(QtGui.QMainWindow, Ui_AccelSensorMainWindow):
                 self.axes[i].set_ylim(minData,maxData)
 
             self.mpl.canvas.fig.canvas.draw()
-            print '# bad samples:', self.dev.getBadSampleCount()
+            #print '# bad samples:', self.dev.getBadSampleCount()
         else:
             pass
             
