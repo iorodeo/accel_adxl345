@@ -3,7 +3,11 @@
 
    Will Dickson, IO Rodeo Inc.
 */ 
-#include <WProgram.h>
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "Arduino.h"
+#else
+#include "WProgram.h"
+#endif
 #include <ByteBuffer.h>
 #include <FastADXL345.h>
 //#include <ADXL345.h>
